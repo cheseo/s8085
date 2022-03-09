@@ -1,0 +1,29 @@
+s8085 -- A stupid 8085 emulator.
+
+This stupid and inefficient program tries to emulate a 8085 cpu.
+
+Dependencies:
+	- gcc (for ##__VA_ARGS__)
+	- a system which supports stdint.h
+	- make
+	- etags (to generate TAGS file)
+
+Compiling & Running:
+	Just `make' should give you a executable file called s8085 inside src/ directory.
+	./src/s8085 should open it in interactive mode, where it prints the value of
+	each register after each command.
+
+Freedom:
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <https://www.gnu.org/licenses/>.
+	
