@@ -27,14 +27,14 @@ struct {
 		  {"inr", inr},
 		  {"dcr", dcr} };
 
-struct imm_mode{
+struct {
 	char *name;
 	void (*fptr)(struct registers *, char, uint8_t);
 }
 	imm[] = { {"mvi", mvi} };
 
 
-struct reg_mode{
+struct {
 	char *name;
 	void (*fptr)(struct registers *, char, char);
 }
