@@ -12,6 +12,7 @@
 /* You should have received a copy of the GNU General Public License */
 /* along with this program.  If not, see <https://www.gnu.org/licenses/>. */
 
+#include <stdlib.h> 		/* strtol */
 #include "glue.h"
 #include "instructions.h"
 
@@ -37,14 +38,22 @@ void dcr(struct registers *r){
 
 /* immediate addressing modes */
 
-void mvi(struct registers *r, char regi, uint8_t val){
-	set_register(r, regi, val);
+void mvi(struct registers *r, char *regi, uint8_t val){
+	set_register(r, *regi, val);
 }
 
+void adi(struct registers *r, char *source, uint8_t val){
+	(void)val;
+	r->a += strtol(source, NULL, 16);
+}
 
 /* register addressing modes */
 
-void mov(struct registers *r, char dest, char source){
-	set_register(r, dest, get_register(r, source));
+void mov(struct registers *r, char *dest, char *source){
+	set_register(r, *dest, get_register(r, *source));
 }
 
+void add(struct registers *r, char *source, char *what){
+	(void)what;
+	r->a += get_register(r, *source);
+}

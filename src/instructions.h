@@ -23,10 +23,11 @@ void dcr(struct registers *r);
 
 /* immediate addressing modes */
 
-void mvi(struct registers *r, char reg, uint8_t val);
+void mvi(struct registers *r, char *reg, uint8_t val);
+void adi(struct registers *r, char *source, uint8_t val);
 
 /* register addressing modes */
 
-void mov(struct registers *r, char dest, char source);
-
+void mov(struct registers *r, char *dest, char *source);
+void add(struct registers *r, char *source, char *what);
 #endif

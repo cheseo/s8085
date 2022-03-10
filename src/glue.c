@@ -29,16 +29,17 @@ struct {
 
 struct {
 	char *name;
-	void (*fptr)(struct registers *, char, uint8_t);
+	void (*fptr)(struct registers *, char *, uint8_t);
 }
-	imm[] = { {"mvi", mvi} };
+	imm[] = { {"mvi", mvi}, {"adi", adi} };
 
 
 struct {
 	char *name;
-	void (*fptr)(struct registers *, char, char);
+	void (*fptr)(struct registers *, char *, char *);
 }
-	reg[] = { {"mov", mov} };
+	reg[] = { {"mov", mov},
+		  {"add", add}};
 
 int set_register(struct registers *r,char regi, uint8_t val){
 	switch(tolower(regi)){
@@ -113,12 +114,12 @@ void call_ins(struct instruction *ins, struct registers *regi){
 	int i = ins->faddr;
 	if(ins->mode == REGISTER){
 		/* void (*reg_fptr[])(struct registers *, char, char) */
-		(*reg[i].fptr)(regi, *(ins->operand1), *(ins->operand2));
+		(*reg[i].fptr)(regi, (ins->operand1), (ins->operand2));
 	}else if(ins->mode == IMMEDIATE){
-		/* void (*imm_fptr[])(struct registers *, char, uint8_t) */
-		(*imm[i].fptr)(regi, *(ins->operand1), ins->tmp_int);
+		/* void (*imm_fptr[])(struct registers *, char *, uint8_t) */
+		(*imm[i].fptr)(regi, (ins->operand1), ins->tmp_int);
 	}else if(ins->mode == IMPLIED){
-		/* void (*imp_fptr[])(struct registers *) */
+		/* void (*fptr)(struct registers *); */
 		(*imp[i].fptr)(regi);
 	}else{
 		EPRINTF("Can't call instruction of mode: %u\n", ins->mode);
@@ -141,9 +142,7 @@ void initialize_instruction(struct instruction *r){
 	r->opcode = NULL;
 	r->operand1 = NULL;
 	r->operand2 = NULL;
-}
-	
-	
+}	
 		
 void set_ins_mode(struct instruction *ins){
 	for(size_t i = 0 ; i<ARRAY_SIZE(reg) ; i++)
