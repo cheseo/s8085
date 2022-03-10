@@ -138,12 +138,6 @@ void print_registers(struct registers *r){
 	       "H: %x\n", r->a, r->b, r->c, r->d, r->e, r->h, r->l);
 }
 
-void initialize_instruction(struct instruction *r){
-	r->opcode = NULL;
-	r->operand1 = NULL;
-	r->operand2 = NULL;
-}	
-		
 void set_ins_mode(struct instruction *ins){
 	for(size_t i = 0 ; i<ARRAY_SIZE(reg) ; i++)
 		if(!strcasecmp(ins->opcode, reg[i].name)){

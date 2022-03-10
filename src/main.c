@@ -29,7 +29,6 @@ int main(int argc, char *argv[]){
 	(void)argc;
 	struct instruction i;
 	struct registers r;
-	initialize_instruction(&i);
 	
 	char opcode[5], op1[5], op2[5];
 	char line[20];

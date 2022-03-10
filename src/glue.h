@@ -39,7 +39,6 @@ struct instruction{
 
 int set_register(struct registers *s,char reg, uint8_t val);
 int get_register(struct registers *s, char reg);
-void sanitize_ins(struct instruction *);
 void call_ins(struct instruction *i, struct registers *r);
 void print_registers(struct registers *r);
 void initialize_instruction(struct instruction *r);
