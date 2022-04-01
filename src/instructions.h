@@ -15,19 +15,25 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
-/* implied addressing modes */
-void rrc(struct registers *);
+
+void rrc(struct registers *r, struct instruction *ins);
 void nop();
-void inr(struct registers *r);
-void dcr(struct registers *r);
+void hlt();
+void xchg(struct registers *r, struct instruction *ins);
+void inr(struct registers *r, struct instruction *ins);
+void dcr(struct registers *r, struct instruction *ins);
+void jmp(struct registers *r, struct instruction *ins);
+void jnc(struct registers *r, struct instruction *ins);
+void jc(struct registers *r, struct instruction *ins);
+void jz(struct registers *r, struct instruction *ins);
+void jnz(struct registers *r, struct instruction *ins);
 
-/* immediate addressing modes */
+void mvi(struct registers *r, struct instruction *ins);
+void adi(struct registers *r, struct instruction *ins);
+void lxi(struct registers *r, struct instruction *ins);
+void inx(struct registers *r, struct instruction *ins);
+void dcx(struct registers *r, struct instruction *ins);
 
-void mvi(struct registers *r, char *reg, uint8_t val);
-void adi(struct registers *r, char *source, uint8_t val);
-
-/* register addressing modes */
-
-void mov(struct registers *r, char *dest, char *source);
-void add(struct registers *r, char *source, char *what);
+void mov(struct registers *r, struct instruction *ins);
+void add(struct registers *r, struct instruction *ins);
 #endif

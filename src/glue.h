@@ -19,9 +19,10 @@
 #define EPRINTF(fmt, ...)				\
 	fprintf(stderr, "%s:%u: " fmt, __FILE__ , __LINE__, ##__VA_ARGS__);
 
-#define ARRAY_SIZE(arr) (sizeof(arr)/sizeof(arr[0]))
-enum op{ OPCODE, OPERAND1, OPERAND2};
-enum ins_mode { REGISTER, IMMEDIATE, IMPLIED, UNDEFINED};
+#define ARRAY_SIZE(arr) ((int)(sizeof(arr)/sizeof(arr[0])))
+
+enum ins_mode { ONEARG, TWOARG, IMPLIED};
+enum ins_arg { REG_REG, NONE, REG_VAL, VAL, REG, VAL_VAL, LABEL, PAIR, PAIR_VAL };
 
 struct registers{
 	uint8_t a, b, c, d, e, h, l;
@@ -29,18 +30,26 @@ struct registers{
 };
 
 struct instruction{
-	char *opcode;
-	char *operand1;
-	char *operand2;
-	uint8_t tmp_int;
-	enum ins_mode faddr;
-	enum ins_mode mode;
+	uint8_t arg1;
+	uint8_t arg2;
+	uint8_t arg3;
+	unsigned int faddr;
+	
 };
-
+extern int halt_exec;
+extern size_t wait_pos;
+extern size_t jmp_pos;
 int set_register(struct registers *s,char reg, uint8_t val);
 int get_register(struct registers *s, char reg);
 void call_ins(struct instruction *i, struct registers *r);
-void print_registers(struct registers *r);
-void initialize_instruction(struct instruction *r);
-void set_ins_mode(struct instruction *i);
+void print_reg(struct registers *r);
+int set_ins(struct instruction *i);
+void set_ins_mode(struct instruction *i, char **inst, int len);
+int set_args(struct instruction *ins, int i, char **insv, int len);
+void add_ins_mem(struct instruction *ins);
+void change_exec(struct registers *r);
+void strtopair(struct instruction *i, char *str);
+int set_register_pair(struct registers *r, char regi, uint8_t higher, uint8_t lower);
+void add_with_carry(struct registers *r, char reg, uint8_t val);
+uint16_t get_register_pair(struct registers *s, char regi);
 #endif

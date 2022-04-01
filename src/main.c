@@ -29,18 +29,11 @@ int main(int argc, char *argv[]){
 	(void)argc;
 	struct instruction i;
 	struct registers r;
-	
-	char opcode[5], op1[5], op2[5];
-	char line[20];
-	while( fgets(line, sizeof(line), stdin) ){
-		sscanf(line,"%s %s %s", opcode, op1, op2);
-		printf("opcode: %s, op1: %s, op2: %s\n",opcode, op1, op2);
-		i.opcode = opcode;
-		i.operand1 = op1;
-		i.operand2 = op2;
-		sanitize_ins(&i);
-		call_ins(&i, &r);
-		print_registers(&r);
+	while(set_ins(&i)){
+		if(!halt_exec){
+			call_ins(&i, &r);
+		}
+		print_reg(&r);
 	}
 	
 	return 0;

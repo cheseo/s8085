@@ -16,44 +16,109 @@
 #include "glue.h"
 #include "instructions.h"
 
-/* implied addressing modes */
-
+#define SET_ZERO(val) do{			\
+		if(val) r->zero =  0;		\
+		else r-> zero = 1;		\
+	} while(0)
+#define SET_CARRY(val) do{		\
+		if(val) r->carry = 1;	\
+		else r->carry = 0;	\
+	} while(0)
 void nop(){}
-
-void rrc(struct registers *r){
+void hlt(){
+	EPRINTF("hlt instruction. exiting.\n");
+	exit(EXIT_SUCCESS);
+}
+void rrc(struct registers *r, struct instruction *ins){
+	(void)ins;
 	int overflow = r->a & 1;
 	r->a>>= 1;
 	if(overflow)
 		/* r->a |=  0b10000000; */
 		r-> a |= ( 1 << 7 ) ;
+	SET_CARRY(overflow);
 }
 
-void inr(struct registers *r){
-	r->a++;
+
+void xchg(struct registers *r, struct instruction *ins){
+	(void)ins;
+	uint8_t tmp1 = r->h, tmp2 = r->l;
+	set_register_pair(r, 'h', r->d, r->e);
+	r->d = tmp1;
+	r->e = tmp2;
 }
 
-void dcr(struct registers *r){
-	r->a--;
+void jmp(struct registers *r, struct instruction *ins){
+	if(!ins->arg2){
+		halt_exec = 1;
+		wait_pos = ins->arg3;
+		EPRINTF("unknown label found, not executing any instruction henceforth.\n");
+	}else{
+		jmp_pos = ins->arg1;
+		change_exec(r);
+	}
 }
 
-/* immediate addressing modes */
-
-void mvi(struct registers *r, char *regi, uint8_t val){
-	set_register(r, *regi, val);
+void jnc(struct registers *r, struct instruction *ins){
+	if(!(r->carry))
+		jmp(r, ins);
+}
+void jc(struct registers *r, struct instruction *ins){
+	if(r->carry)
+		jmp(r,ins);
+}
+void jz(struct registers *r, struct instruction *ins){
+	if(r->zero)
+		jmp(r,ins);
+}
+void jnz(struct registers *r, struct instruction *ins){
+	if(!(r->zero))
+		jmp(r,ins);
 }
 
-void adi(struct registers *r, char *source, uint8_t val){
-	(void)val;
-	r->a += strtol(source, NULL, 16);
+void add(struct registers *r, struct instruction *ins){
+	uint8_t tmp = get_register(r, ins->arg1);
+	add_with_carry(r, 'a', tmp);
 }
 
-/* register addressing modes */
-
-void mov(struct registers *r, char *dest, char *source){
-	set_register(r, *dest, get_register(r, *source));
+void inr(struct registers *r, struct instruction *ins){
+	char reg=ins->arg1;
+	set_register(r, reg, get_register(r, reg) + 1);
+}
+void dcr(struct registers *r, struct instruction *ins){
+	char reg = ins->arg1;
+	set_register(r, reg, get_register(r, reg) - 1);
+	SET_ZERO(get_register(r, reg));
 }
 
-void add(struct registers *r, char *source, char *what){
-	(void)what;
-	r->a += get_register(r, *source);
+void mov(struct registers *r, struct instruction *ins){
+	char dest = ins->arg1;
+	char source = ins->arg2;
+	set_register(r, dest, get_register(r, source));
+}
+
+void mvi(struct registers *r, struct instruction *ins){
+	char regi = ins->arg1;
+	uint8_t val = ins->arg2;
+	set_register(r, regi, val);
+}
+void lxi(struct registers *r, struct instruction *ins){
+	set_register_pair(r, ins->arg1, ins->arg2, ins->arg3);
+}
+
+void inx(struct registers *r, struct instruction *ins){
+	uint16_t val = get_register_pair(r, ins->arg1);
+	val++;
+	set_register_pair(r, ins->arg1, val>>8, val);
+	SET_ZERO(val);
+	SET_CARRY((!val));
+}
+void dcx(struct registers *r, struct instruction *ins){
+	uint16_t val = get_register_pair(r, ins->arg1);
+	val--;
+	set_register_pair(r, ins->arg1, val>>8, val);
+	SET_ZERO(val);
+}
+void adi(struct registers *r, struct instruction *ins){
+	add_with_carry(r, 'a', ins->arg1);
 }
