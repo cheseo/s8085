@@ -121,4 +121,5 @@ void dcx(struct registers *r, struct instruction *ins){
 }
 void adi(struct registers *r, struct instruction *ins){
 	add_with_carry(r, 'a', ins->arg1);
+	SET_ZERO(get_register(r, 'a'));
 }
