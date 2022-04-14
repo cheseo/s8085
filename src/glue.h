@@ -39,6 +39,7 @@ struct instruction{
 extern int halt_exec;
 extern size_t wait_pos;
 extern size_t jmp_pos;
+extern FILE *mem_fp;
 int set_register(struct registers *s,char reg, uint8_t val);
 int get_register(struct registers *s, char reg);
 void call_ins(struct instruction *i, struct registers *r);
@@ -52,4 +53,9 @@ void strtopair(struct instruction *i, char *str);
 int set_register_pair(struct registers *r, char regi, uint8_t higher, uint8_t lower);
 void add_with_carry(struct registers *r, char reg, uint8_t val);
 uint16_t get_register_pair(struct registers *s, char regi);
+uint8_t get_line_mem(uint16_t pos);
+void set_line_mem(uint16_t pos, uint8_t data);
+uint16_t hl_to_pos(struct registers *r);
+uint8_t get_line_hl(struct registers *r);
+void set_line_hl(struct registers *r, uint8_t data);
 #endif

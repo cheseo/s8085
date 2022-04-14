@@ -21,7 +21,7 @@
 int halt_exec = 0;
 size_t wait_pos  = 0;
 size_t jmp_pos;
-
+FILE *mem_fp;
 struct label {
 	char name[10];
 	size_t addr;
@@ -91,6 +91,9 @@ int set_register(struct registers *r,char regi, uint8_t val){
 	case 'l':
 		r->l = val;
 		break;
+	case 'm':
+		set_line_hl(r, val);
+		break;
 	default:
 		EPRINTF("invalid register to set, %c\n", regi);
 		return 0;
@@ -138,6 +141,8 @@ int get_register(struct registers *s, char regi){
 	case 'l':
 		return s->l;
 		break;
+	case 'm':
+		return get_line_hl(s);
 	default:
 		EPRINTF("invalid register to get\n");
 		return -1;
@@ -438,4 +443,50 @@ void change_exec(struct registers *r){
 	}
 	jmp_pos++;
 	change_exec(r);
+}
+
+uint8_t get_line_mem(uint16_t pos){
+	FILE *fp = mem_fp;
+	pos = pos*3;
+	if(fseek(fp, pos, SEEK_SET))
+		perror("fseek");
+	char buf[3] = { 0 } ;
+	if(fread(buf, sizeof *buf, 3, fp) != 3){
+		EPRINTF("fread read less than 3 bytes\n"
+			"position: %d (%x h)\n", pos, pos);
+	}
+	if(buf[2] != '\n'){
+		EPRINTF("Expected \\n but got %c at %d (%x h) pos\n", buf[2], pos, pos);
+		exit(0);
+	}
+	buf[2] = '\0';
+	return strtol(buf, NULL, 16);
+}
+
+void set_line_mem(uint16_t pos, uint8_t data){
+	pos *= 3;
+	if(fseek(mem_fp, pos, SEEK_SET))
+		perror("fseek");
+	fprintf(mem_fp, "%2x", data);
+	fflush(mem_fp);
+}
+
+uint16_t hl_to_pos(struct registers *r){
+	EPRINTF("converting hl to position. h=%x, l=%x\n", r->h, r->l);
+	uint16_t pos = 0;
+	pos = r->h;
+	EPRINTF("pos = %x\n", pos);
+	pos <<=8;
+	EPRINTF("pos = %x\n", pos);
+	pos |= r->l;
+	EPRINTF("pos = %x\n", pos);
+	return pos;
+}
+
+uint8_t get_line_hl(struct registers *r){
+	return get_line_mem(hl_to_pos(r));
+}
+
+void set_line_hl(struct registers *r, uint8_t data){
+	set_line_mem(hl_to_pos(r), data);
 }
