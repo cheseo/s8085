@@ -27,3 +27,5 @@ instructions.o: instructions.c instructions.h
 
 glue.o: glue.c glue.h
 	$(CC) -c glue.c
+clean:
+	rm -r -- *.o s8085
