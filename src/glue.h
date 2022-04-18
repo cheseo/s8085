@@ -55,7 +55,6 @@ void add_with_carry(struct registers *r, char reg, uint8_t val);
 uint16_t get_register_pair(struct registers *s, char regi);
 uint8_t get_line_mem(uint16_t pos);
 void set_line_mem(uint16_t pos, uint8_t data);
-uint16_t hl_to_pos(struct registers *r);
-uint8_t get_line_hl(struct registers *r);
-void set_line_hl(struct registers *r, uint8_t data);
+uint8_t get_line_pair(struct registers *r, char reg);
+void set_line_pair(struct registers *r, uint8_t data, char reg);
 #endif

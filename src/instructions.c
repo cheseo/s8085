@@ -24,6 +24,15 @@
 		if(val) r->carry = 1;	\
 		else r->carry = 0;	\
 	} while(0)
+
+uint16_t ins_to_pos(struct instruction *ins){
+	uint16_t tmp;
+	tmp = ins->arg2;
+	tmp <<= 8;
+	tmp |= ins->arg1;
+	return tmp;
+}
+
 void nop(){}
 void hlt(){
 	EPRINTF("hlt instruction. exiting.\n");
@@ -122,4 +131,53 @@ void dcx(struct registers *r, struct instruction *ins){
 void adi(struct registers *r, struct instruction *ins){
 	add_with_carry(r, 'a', ins->arg1);
 	SET_ZERO(get_register(r, 'a'));
+}
+
+void lda(struct registers *r, struct instruction *ins){
+	r->a=get_line_mem(ins_to_pos(ins));
+	SET_ZERO(r->a);
+}
+
+void ldax(struct registers *r, struct instruction *ins){
+	r->a=get_line_pair(r, ins->arg1);
+	SET_ZERO(r->a);
+}
+
+void lhld(struct registers *r, struct instruction *ins){
+	uint16_t pos = ins_to_pos(ins);
+	r->h=get_line_mem(pos++);
+	r->l=get_line_mem(pos);
+}
+void sta(struct registers *r, struct instruction *ins){
+	set_line_mem(ins_to_pos(ins), r->a);
+	SET_ZERO(r->a);
+}
+void stax(struct registers *r, struct instruction *ins){
+	set_line_pair(r, r->a, ins->arg1);
+	SET_ZERO(r->a);
+}
+void shld(struct registers *r, struct instruction *ins){
+	uint16_t pos = ins_to_pos(ins);
+	set_line_mem(pos++, r->l);
+	set_line_mem(pos, r->h);
+}
+void cpi(struct registers *r, struct instruction *ins){
+	uint8_t val = ins->arg1, acc = r->a ;
+	if(acc < val){
+	  SET_CARRY(1);
+	  SET_ZERO(0);
+	}else if (acc == val){
+	  SET_ZERO(1);
+	  SET_CARRY(0);
+	}else{
+	  SET_CARRY(0);
+	  SET_ZERO(0);
+	}
+}
+
+void cmp(struct registers *r, struct instruction *ins){
+	uint8_t reg = ins->arg1;
+	ins->arg1 = get_register(r, reg);
+	cpi(r, ins);
+	ins->arg1 = reg;
 }

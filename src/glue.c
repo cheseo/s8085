@@ -66,7 +66,15 @@ struct {
 		   {"dcx", dcx, PAIR},
 		   {"mov", mov, REG_REG},
 		   {"add", add, REG},
-		   {"xchg", xchg, NONE}};
+		   {"xchg", xchg, NONE},
+		   {"lda", lda, VAL_VAL},
+		   {"ldax", ldax, PAIR},
+		   {"lhld", lhld, VAL_VAL},
+		   {"sta", sta, VAL_VAL},
+		   {"stax", stax, PAIR},
+		   {"shld", shld, VAL_VAL},
+		   {"cpi", cpi, VAL},
+		   {"cmp", cmp, REG}};
 
 int set_register(struct registers *r,char regi, uint8_t val){
 	switch(tolower(regi)){
@@ -92,7 +100,7 @@ int set_register(struct registers *r,char regi, uint8_t val){
 		r->l = val;
 		break;
 	case 'm':
-		set_line_hl(r, val);
+		set_line_pair(r, val, 'h');
 		break;
 	default:
 		EPRINTF("invalid register to set, %c\n", regi);
@@ -142,7 +150,7 @@ int get_register(struct registers *s, char regi){
 		return s->l;
 		break;
 	case 'm':
-		return get_line_hl(s);
+		return get_line_pair(s, 'h');
 	default:
 		EPRINTF("invalid register to get\n");
 		return -1;
@@ -323,9 +331,12 @@ int set_args(struct instruction *ins, int i, char **insv, int len){
 		ins->arg1 = strtol(*(insv+1), NULL, 16);
 		break;
 	case VAL_VAL:
-		CHECK_LEN(3);
-		ins->arg1 = strtol(*(insv+1), NULL, 16);
-		ins->arg2 = strtol(*(insv+2), NULL, 16);
+		CHECK_LEN(2);
+		{
+		  uint16_t addr = strtol(*(insv+1), NULL, 16);
+		  ins->arg1 = addr;
+		  ins->arg2 = addr >> 8;
+		}
 		break;
 	case LABEL:
 		CHECK_LEN(2);
@@ -351,8 +362,7 @@ int set_args(struct instruction *ins, int i, char **insv, int len){
 		ins->arg1 = lowered;
 		break;
 	case NONE:
-		if(len != 1 )
-			INCOMPLETE_INST(*insv);
+		CHECK_LEN(1);
 		break;
 	default:
 		EPRINTF("should be impossible.");
@@ -445,9 +455,11 @@ void change_exec(struct registers *r){
 	change_exec(r);
 }
 
-uint8_t get_line_mem(uint16_t pos){
+uint8_t get_line_mem(uint16_t p){
 	FILE *fp = mem_fp;
-	pos = pos*3;
+	/* max position is 3*0xffff = 0x2fffd which overflows 16 bits.*/
+	uint32_t pos = p;
+	pos*=3;
 	if(fseek(fp, pos, SEEK_SET))
 		perror("fseek");
 	char buf[3] = { 0 } ;
@@ -471,22 +483,10 @@ void set_line_mem(uint16_t pos, uint8_t data){
 	fflush(mem_fp);
 }
 
-uint16_t hl_to_pos(struct registers *r){
-	EPRINTF("converting hl to position. h=%x, l=%x\n", r->h, r->l);
-	uint16_t pos = 0;
-	pos = r->h;
-	EPRINTF("pos = %x\n", pos);
-	pos <<=8;
-	EPRINTF("pos = %x\n", pos);
-	pos |= r->l;
-	EPRINTF("pos = %x\n", pos);
-	return pos;
+uint8_t get_line_pair(struct registers *r, char reg){
+	return get_line_mem(get_register_pair(r, reg));
 }
 
-uint8_t get_line_hl(struct registers *r){
-	return get_line_mem(hl_to_pos(r));
-}
-
-void set_line_hl(struct registers *r, uint8_t data){
-	set_line_mem(hl_to_pos(r), data);
+void set_line_pair(struct registers *r, uint8_t data, char reg){
+	set_line_mem(get_register_pair(r, reg), data);
 }

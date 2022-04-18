@@ -36,4 +36,12 @@ void dcx(struct registers *r, struct instruction *ins);
 
 void mov(struct registers *r, struct instruction *ins);
 void add(struct registers *r, struct instruction *ins);
+void lda(struct registers *r, struct instruction *ins);
+void ldax(struct registers *r, struct instruction *ins);
+void lhld(struct registers *r, struct instruction *ins);
+void sta(struct registers *r, struct instruction *ins);
+void stax(struct registers *r, struct instruction *ins);
+void shld(struct registers *r, struct instruction *ins);
+void cpi(struct registers *r, struct instruction *ins);
+void cmp(struct registers *r, struct instruction *ins);
 #endif
