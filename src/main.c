@@ -18,11 +18,11 @@
 #include <time.h>
 #include <ctype.h> 		/* isalnum */
 #include "glue.h"
-
+#define PROGNAME "s8085"
 void usage(int exit_code){
 	FILE *fp = exit_code==EXIT_SUCCESS ? stdout : stderr; 
 	fprintf( fp, "Synopsis:\n"
-		 	"	%s 8085 instruction\n", program_invocation_short_name);
+		 	"	%s 8085 instruction\n", PROGNAME);
 	exit(exit_code);
 }
 int create_mem_file(FILE *fp){
