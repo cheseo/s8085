@@ -15,9 +15,10 @@
 #define GLUE_H
 #include <stdio.h>
 #include <stdint.h>
-
-#define EPRINTF(fmt, ...)				\
-	fprintf(stderr, "%s:%u: " fmt, __FILE__ , __LINE__, ##__VA_ARGS__);
+#define STRINGIFY(x) XSTRINGIFY(x)
+#define XSTRINGIFY(x) #x
+#define EPRINTF(...)				\
+  fprintf(stderr, STRINGIFY(__FILE__) ":" STRINGIFY(__LINE__) ":" __VA_ARGS__)
 
 #define ARRAY_SIZE(arr) ((int)(sizeof(arr)/sizeof(arr[0])))
 
