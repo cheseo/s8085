@@ -246,9 +246,10 @@ void set_label(char *label){
 	mem.lab_count++;
 
 	if(halt_exec){
-		if(!strcmp(label, *(mem.waiting_label + wait_pos)))
+		if(!strcmp(label, *(mem.waiting_label + wait_pos))){
 			EPRINTF("label %s found, continuing execution.\n", label);
 			halt_exec = 0;
+		}
 	}
 
 }
