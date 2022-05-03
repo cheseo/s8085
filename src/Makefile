@@ -16,16 +16,10 @@ CC = gcc -ggdb3 -Wall -Wextra -Wpedantic -Wshadow -O0 -std=gnu99 -D_GNU_SOURCE
 LDLIBS = -lm 			# apparantly this is how it should be done
 OBJ1 = main.o instructions.o glue.o
 s8085: $(OBJ1)
-	$(CC) -o $@  $(LDFLAGS) $(OBJ1) $(LDLIBS)
-	etags *.c *.h
-OBJ2 = main.c
-main.o: $(OBJ2)
-	$(CC) -c $(OBJ2)
-
-instructions.o: instructions.c instructions.h
-	$(CC) -c instructions.c
-
-glue.o: glue.c glue.h
-	$(CC) -c glue.c
+	$(CC) -o $@ $(LDFLAGS) $(OBJ1) $(LDLIBS)
+	-etags *.c *.h
 clean:
 	rm -r -- *.o s8085
+.SUFFIXES: .c .o
+.c.o:
+	$(CC) -c $<
